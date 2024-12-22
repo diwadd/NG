@@ -1,0 +1,1 @@
+add_library(UserEquipment UserEquipment.cpp)

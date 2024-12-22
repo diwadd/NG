@@ -1,0 +1,1 @@
+add_library(Utilities VariousFunctions.cpp)
