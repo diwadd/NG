@@ -4,11 +4,9 @@
 #include <print>
 #include <chrono>
 #include "VariousFunctions.h"
+#include "Messages.h"
+#include "MessageOperations.h"
 
-struct SystemInformationBlockOne
-{
-	uint32_t messageId{};
-};
 
 void gnb(zmq::context_t &context)
 {
@@ -24,19 +22,19 @@ void gnb(zmq::context_t &context)
 	zmq::socket_t sender(context, zmq::socket_type::pair);
 	sender.connect("inproc://UE_1");
 
-	SystemInformationBlockOne sib1{.messageId = 342};
-	zmq::message_t msg(sizeof(sib1));
-    memcpy(msg.data(), &sib1, sizeof(sib1));
-	sender.send(msg, zmq::send_flags::none);
+	Message message{
+		.id = SYSTEM_INFORMATION_BLOCK_ONE,
+		.payload = SystemInformationBlockOne{
+			.cellAccessRelatedInfo = CellAccessRelatedInfo{
+				.cellIdentity = 3427}}};
+
+	SendMessage(sender, message);
 }
 
 void ue(zmq::context_t &context)
 {
 
 	std::print("In UE function\n");
-
-
-
 
 	// std::cout << "UE ready, signaling to main" << std::endl;
 
@@ -53,9 +51,11 @@ void ue(zmq::context_t &context)
 
 	std::cout << "UE received a message with: " << numberOfBytes.value() << " bytes of payload\n";
 	
-	SystemInformationBlockOne* text = reinterpret_cast<SystemInformationBlockOne*>(msg.data());
-	
-	std::cout << "Msg data: " << text->messageId << "\n";
+	// Message* message = reinterpret_cast<Message*>(msg.data());
+	// SystemInformationBlockOne sib1 = std::get<SystemInformationBlockOne>(message->payload);
+
+	SystemInformationBlockOne sib1 = ExtractPayload<SystemInformationBlockOne>(msg);
+	std::cout << "SIB1 cellAccessRelatedInfo.cellIdentity: " << sib1.cellAccessRelatedInfo.cellIdentity << "\n";
 
 }
 

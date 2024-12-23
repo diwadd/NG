@@ -12,6 +12,7 @@ project(NG)
 
 add_subdirectory(Utilities)
 add_subdirectory(UserEquipment)
+add_subdirectory(Messages)
 
 
 find_package(PkgConfig)
@@ -30,12 +31,14 @@ find_library(ZeroMQ_LIBRARY
 add_executable(NG main.cpp)
 
 target_link_libraries(NG PUBLIC Utilities)
+target_link_libraries(NG PUBLIC Messages)
 target_link_libraries(NG PUBLIC ${ZeroMQ_LIBRARY})
 
 target_include_directories(NG PUBLIC
                           "${PROJECT_BINARY_DIR}"
                           "${PROJECT_SOURCE_DIR}/Utilities"
                           "${PROJECT_SOURCE_DIR}/UserEquipment"
+                          "${PROJECT_SOURCE_DIR}/Messages"
                           )
 
 
