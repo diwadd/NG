@@ -23,7 +23,6 @@ void gnb(zmq::context_t &context)
 	sender.connect("inproc://UE_1");
 
 	Message message{
-		.id = SYSTEM_INFORMATION_BLOCK_ONE,
 		.payload = SystemInformationBlockOne{
 			.cellAccessRelatedInfo = CellAccessRelatedInfo{
 				.cellIdentity = 3427}}};
@@ -54,7 +53,7 @@ void ue(zmq::context_t &context)
 	// Message* message = reinterpret_cast<Message*>(msg.data());
 	// SystemInformationBlockOne sib1 = std::get<SystemInformationBlockOne>(message->payload);
 
-	SystemInformationBlockOne sib1 = ExtractPayload<SystemInformationBlockOne>(msg);
+	auto sib1 = ExtractPayload<SystemInformationBlockOne>(msg);
 	std::cout << "SIB1 cellAccessRelatedInfo.cellIdentity: " << sib1.cellAccessRelatedInfo.cellIdentity << "\n";
 
 }
@@ -90,4 +89,8 @@ int main()
 	gnbThread.join();
 	ueThread.join();
 
+	std::print("id: {}\n", GetUniqueId());
+	std::print("id: {}\n", GetUniqueId());
+	std::print("id: {}\n", GetUniqueId());
+	std::print("id: {}\n", GetUniqueId());
 }
