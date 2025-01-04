@@ -1,3 +1,4 @@
+// main
 #include <iostream>
 #include <thread>
 #include <zmq.hpp>
@@ -6,6 +7,8 @@
 #include "VariousFunctions.h"
 #include "Messages.h"
 #include "MessageOperations.h"
+#include "NetworkConnection.h"
+#include "Addresses.h"
 
 
 void gnb(zmq::context_t &context)
@@ -56,6 +59,12 @@ void ue(zmq::context_t &context)
 	auto sib1 = ExtractPayload<SystemInformationBlockOne>(msg);
 	std::cout << "SIB1 cellAccessRelatedInfo.cellIdentity: " << sib1.cellAccessRelatedInfo.cellIdentity << "\n";
 
+	zmq::socket_t sender(context, zmq::socket_type::pair);
+	sender.connect(Address::NETWORK_CONTROL.data());
+	sender.send(zmq::str_buffer("READY 1"), zmq::send_flags::none);
+	sender.send(zmq::str_buffer("READY 2"), zmq::send_flags::none);
+	sender.send(zmq::str_buffer("READY 3"), zmq::send_flags::none);
+
 }
 
 int main()
@@ -74,7 +83,24 @@ int main()
 	std::thread ueThread(ue, std::ref(context));
 	std::cout << "Threads created\n";
 
-	// zmq::context_t context;
+
+
+	const auto runNetworkConnection = [](zmq::context_t &context){
+		NetworkConnection nc;
+
+		zmq::socket_t socket(context, zmq::socket_type::pair);
+		socket.bind(Address::NETWORK_CONTROL.data());
+
+		while(true)
+		{
+			zmq::message_t msg;
+			const auto numberOfBytes = socket.recv(msg, zmq::recv_flags::none);
+			std::cout << "Network Connection received message: " <<  numberOfBytes.value() << std::endl;
+		}
+	};
+
+	std::thread networkConnectionThread(runNetworkConnection, std::ref(context));
+
 	// zmq::socket_t sender(context, zmq::socket_type::pair);
 	// sender.bind("inproc://main");
 
@@ -88,6 +114,7 @@ int main()
 
 	gnbThread.join();
 	ueThread.join();
+	networkConnectionThread.join();
 
 	std::print("id: {}\n", GetUniqueId());
 	std::print("id: {}\n", GetUniqueId());

@@ -1,24 +1,26 @@
 FROM ubuntu:latest
 
 # Install build-essential package which includes g++
-RUN apt-get update && apt-get install -y build-essential
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     software-properties-common \
     gnupg2 \
     && \
-    # Add the Ubuntu Toolchain PPA (for older g++ versions)
     add-apt-repository ppa:ubuntu-toolchain-r/test \
     && \
     apt-get update \
     && \
-    # Install the desired g++ version (replace with your target version)
-    apt-get install -y g++-14
-    # Example: g++-9 for GCC 9, g++-10 for GCC 10, etc.
+    apt-get install -y \
+    clang-18 \
+    libclang-18-dev \
+    g++-14 \
+    cmake \
+    build-essential \
+    libzmq3-dev
 
 # Copy your C++ source code to the container
 WORKDIR /app
-COPY . .
+# COPY . .
 
 # Build your C++ program
 # RUN g++-15 -o main main.cpp 
@@ -29,4 +31,5 @@ COPY . .
 # Command to run your program (optional)
 # CMD ["./my_program"]
 
-
+# sudo docker build -t ng_main .
+# sudo docker run -v /home/dawid/Coding/NG:/app -it ng_main
