@@ -11,27 +11,27 @@
 #include "Addresses.h"
 
 
-void gnb(zmq::context_t &context)
-{
+// void gnb(zmq::context_t &context)
+// {
 
-	zmq::socket_t socket(context, zmq::socket_type::pair);
-	socket.bind("inproc://GNB_1");
+// 	zmq::socket_t socket(context, zmq::socket_type::pair);
+// 	socket.bind("inproc://GNB_1");
 
-	std::cout << "Waiting for UEs to span\n";
-	std::chrono::milliseconds timespan(2000); // or whatever
-	std::this_thread::sleep_for(timespan);
-	std::cout << "UEs spanned\n";
+// 	std::cout << "Waiting for UEs to span\n";
+// 	std::chrono::milliseconds timespan(2000); // or whatever
+// 	std::this_thread::sleep_for(timespan);
+// 	std::cout << "UEs spanned\n";
 
-	zmq::socket_t sender(context, zmq::socket_type::pair);
-	sender.connect("inproc://UE_1");
+// 	zmq::socket_t sender(context, zmq::socket_type::pair);
+// 	sender.connect("inproc://UE_1");
 
-	Message message{
-		.payload = SystemInformationBlockOne{
-			.cellAccessRelatedInfo = CellAccessRelatedInfo{
-				.cellIdentity = 3427}}};
+// 	Message message{
+// 		.payload = SystemInformationBlockOne{
+// 			.cellAccessRelatedInfo = CellAccessRelatedInfo{
+// 				.cellIdentity = 3427}}};
 
-	SendMessage(sender, message);
-}
+// 	SendMessage(sender, message);
+// }
 
 void ue(zmq::context_t &context)
 {
@@ -47,23 +47,35 @@ void ue(zmq::context_t &context)
 	zmq::socket_t socket(context, zmq::socket_type::pair);
 	socket.bind("inproc://UE_1");
 
+	std::cout << "Preparing message" << std::endl;
 
-	zmq::message_t msg;
-	const auto numberOfBytes = socket.recv(msg, zmq::recv_flags::none);
+	Messages::Message message{.id = Messages::Ping::id,
+		.payload = Messages::Ping{.note = "Ping - Pinging from UE_1"}};
 
-	std::cout << "UE received a message with: " << numberOfBytes.value() << " bytes of payload\n";
+	std::cout << "Sending message" << std::endl;
+
+	zmq::socket_t sender(context, zmq::socket_type::pair);
+	sender.connect(Address::NETWORK_CONTROL.data());
+	SendMessage(sender, message);
+
+	std::cout << "End of UE_1" << std::endl;
+
+	// zmq::message_t msg;
+	// const auto numberOfBytes = socket.recv(msg, zmq::recv_flags::none);
+
+	// std::cout << "UE received a message with: " << numberOfBytes.value() << " bytes of payload\n";
 	
 	// Message* message = reinterpret_cast<Message*>(msg.data());
 	// SystemInformationBlockOne sib1 = std::get<SystemInformationBlockOne>(message->payload);
 
-	auto sib1 = ExtractPayload<SystemInformationBlockOne>(msg);
-	std::cout << "SIB1 cellAccessRelatedInfo.cellIdentity: " << sib1.cellAccessRelatedInfo.cellIdentity << "\n";
+	// auto sib1 = ExtractPayload<SystemInformationBlockOne>(msg);
+	// std::cout << "SIB1 cellAccessRelatedInfo.cellIdentity: " << sib1.cellAccessRelatedInfo.cellIdentity << "\n";
 
-	zmq::socket_t sender(context, zmq::socket_type::pair);
-	sender.connect(Address::NETWORK_CONTROL.data());
-	sender.send(zmq::str_buffer("READY 1"), zmq::send_flags::none);
-	sender.send(zmq::str_buffer("READY 2"), zmq::send_flags::none);
-	sender.send(zmq::str_buffer("READY 3"), zmq::send_flags::none);
+	// zmq::socket_t sender(context, zmq::socket_type::pair);
+	// sender.connect(Address::NETWORK_CONTROL.data());
+	// sender.send(zmq::str_buffer("READY 1"), zmq::send_flags::none);
+	// sender.send(zmq::str_buffer("READY 2"), zmq::send_flags::none);
+	// sender.send(zmq::str_buffer("READY 3"), zmq::send_flags::none);
 
 }
 
@@ -77,29 +89,22 @@ int main()
 	func();
 
 	zmq::context_t context;
-	std::cout << "Creating gnb thread\n";
-	std::thread gnbThread(gnb, std::ref(context));
-	std::cout << "Creating ue thread\n";
-	std::thread ueThread(ue, std::ref(context));
-	std::cout << "Threads created\n";
+	// std::cout << "Creating gnb thread\n";
+	// std::thread gnbThread(gnb, std::ref(context));
+	// std::cout << "Creating ue thread\n";
 
 
-
-	const auto runNetworkConnection = [](zmq::context_t &context){
-		NetworkConnection nc;
-
-		zmq::socket_t socket(context, zmq::socket_type::pair);
-		socket.bind(Address::NETWORK_CONTROL.data());
-
-		while(true)
-		{
-			zmq::message_t msg;
-			const auto numberOfBytes = socket.recv(msg, zmq::recv_flags::none);
-			std::cout << "Network Connection received message: " <<  numberOfBytes.value() << std::endl;
-		}
+	const auto runNetworkConnection = [](zmq::context_t& context){
+		NetworkConnection nc(context);
+		nc.Run();
 	};
 
 	std::thread networkConnectionThread(runNetworkConnection, std::ref(context));
+	std::thread ueThread(ue, std::ref(context));
+	std::cout << "Threads created\n";
+
+	std::chrono::milliseconds timespan(2000); // or whatever
+	std::this_thread::sleep_for(timespan);
 
 	// zmq::socket_t sender(context, zmq::socket_type::pair);
 	// sender.bind("inproc://main");
@@ -112,7 +117,17 @@ int main()
 	// sender.send(zmq::str_buffer("UE READY 2"), zmq::send_flags::none);
 	// sender.send(zmq::str_buffer("UE READY 3"), zmq::send_flags::none);
 
-	gnbThread.join();
+
+	zmq::socket_t sender(context, zmq::socket_type::pair);
+	sender.connect(Address::NETWORK_CONTROL.data());
+
+	Messages::Message message{.id = Messages::Abort::id,
+		.payload = Messages::Abort{.note = "Abort - Closing Network Connection"}};
+
+	SendMessage(sender, message);
+
+
+	// gnbThread.join();
 	ueThread.join();
 	networkConnectionThread.join();
 

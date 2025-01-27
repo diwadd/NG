@@ -3,10 +3,11 @@
 #include <zmq.hpp>
 #include <cassert>
 
-void SendMessage(zmq::socket_t& socket, Message& message);
+void SendMessage(zmq::socket_t& socket, Messages::Message& message);
 
-template<typename Payload> Payload ExtractPayload(zmq::message_t& zmqMessage)
+std::unique_ptr<Messages::Message> DecodeMessage(zmq::message_t& zmqMessage);
+ 
+template<typename Type> Type ExtractPayload(Messages::Payload& payload)
 {
-    Message* message = reinterpret_cast<Message*>(zmqMessage.data());
-	return std::get<Payload>(message->payload);
+	return std::get<Type>(payload);
 }
