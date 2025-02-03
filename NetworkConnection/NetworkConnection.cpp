@@ -3,6 +3,7 @@
 #include "MessageOperations.h"
 #include "Addresses.h"
 #include <iostream>
+#include "Definitions/Messages_generated.h"
 
 NetworkConnection::NetworkConnection(zmq::context_t& context) : context_m(context)
 {
@@ -16,27 +17,39 @@ void NetworkConnection::Run()
 
     while(true)
     {
-        zmq::message_t msg;
-        const auto numberOfBytes = socket.recv(msg, zmq::recv_flags::none);
+        zmq::message_t zmqMsg;
+        const auto numberOfBytes = socket.recv(zmqMsg, zmq::recv_flags::none);
         std::cout << "Network Connection received message: " <<  numberOfBytes.value() << std::endl;
 
-        auto message = DecodeMessage(msg);
+        auto message = MessagesX::GetMessage(zmqMsg.data());
 
-        std::cout << "Received message with ID: " << message.id << std::endl;
-        if (message.id == Messages::ABORT)
+        std::cout << "Payload type: " << static_cast<int>(message->payload_type()) << " - " << static_cast<int>(MessagesX::Payload_Ping) << std::endl;
+
+        if (message->payload_as_Ping())
         {
-            std::cout << "Received ABORT" << std::endl;
+            std::cout << "Received Ping" << std::endl;
+        }
+        else if (message->payload_as_Abort())
+        {
+            std::cout << "Received Abort" << std::endl;
             break;
         }
-        else if (message.id == Messages::PING)
-        {
-            auto ping = ExtractPayload<Messages::Ping>(message.payload);
-            std::cout << "Ping received. Note: " << ping.note << std::endl;
-        }
-        else if (message.id == Messages::REGISTER_USER_EQUIPMENT_REQUEST)
-        {
 
-        }
+        // std::cout << "Received message with ID: " << message.payload_type() << std::endl;
+        // if (message.id == Messages::ABORT)
+        // {
+        //     std::cout << "Received ABORT" << std::endl;
+        //     break;
+        // }
+        // else if (message.id == Messages::PING)
+        // {
+        //     auto ping = ExtractPayload<Messages::Ping>(message.payload);
+        //     std::cout << "Ping received. Note: " << ping.note << std::endl;
+        // }
+        // else if (message.id == Messages::REGISTER_USER_EQUIPMENT_REQUEST)
+        // {
+
+        // }
     }
     std::cout << "Exited while loop" << std::endl;
 

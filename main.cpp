@@ -50,14 +50,29 @@ void ue(zmq::context_t &context)
 
 	std::cout << "Preparing message" << std::endl;
 
-	Messages::Message message{.id = Messages::PING,
-		.payload = Messages::Ping{.note="asd"}};
+	// Messages::Message message{.id = Messages::PING,
+	// 	.payload = Messages::Ping{.note="asd"}};
 
 	std::cout << "Sending message" << std::endl;
 
-	zmq::socket_t sender(context, zmq::socket_type::pair);
-	sender.connect(Address::NETWORK_CONTROL.data());
-	SendMessage(sender, message);
+    zmq::socket_t sender(context, zmq::socket_type::pair);
+    sender.connect(Address::NETWORK_CONTROL.data());
+
+	flatbuffers::FlatBufferBuilder builder;
+	auto ping = MessagesX::CreatePing(builder, 12354);
+	auto msgX = MessagesX::CreateMessage(builder, MessagesX::Payload_Ping, ping.Union());
+
+	builder.Finish(msgX);
+
+
+    zmq::message_t zmqMessage(builder.GetSize());
+    memcpy(zmqMessage.data(), builder.GetBufferPointer(), builder.GetSize());
+	sender.send(zmqMessage, zmq::send_flags::none);
+
+
+	// zmq::socket_t sender(context, zmq::socket_type::pair);
+	// sender.connect(Address::NETWORK_CONTROL.data());
+	// SendMessage(sender, message);
 
 	std::cout << "End of UE_1" << std::endl;
 
@@ -122,20 +137,21 @@ int main()
 	zmq::socket_t sender(context, zmq::socket_type::pair);
 	sender.connect(Address::NETWORK_CONTROL.data());
 
-	Messages::Message message{.id = Messages::ABORT,
-		.payload = Messages::Abort{.note = "Abort - Closing Network Connection"}};
+	// Messages::Message message{.id = Messages::ABORT,
+	// 	.payload = Messages::Abort{.note = "Abort - Closing Network Connection"}};
 
 	flatbuffers::FlatBufferBuilder builder;
-	auto ping = MessagesX::CreatePing(builder, 1237);
-	auto msgX = MessagesX::CreateMessage(builder, MessagesX::Payload_Ping, ping.Union());
+	auto abort = MessagesX::CreateAbort(builder, 1237);
+	auto msgX = MessagesX::CreateMessage(builder, MessagesX::Payload_Abort, abort.Union());
 
 	builder.Finish(msgX);
 
-    uint8_t* buffer = builder.GetBufferPointer();
-    size_t size = builder.GetSize();
 
+    zmq::message_t zmqMessage(builder.GetSize());
+    memcpy(zmqMessage.data(), builder.GetBufferPointer(), builder.GetSize());
+	sender.send(zmqMessage, zmq::send_flags::none);
 
-	SendMessage(sender, message);
+	// SendMessage(sender, message);
 
 
 	// gnbThread.join();
