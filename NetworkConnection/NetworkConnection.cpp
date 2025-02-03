@@ -22,18 +22,18 @@ void NetworkConnection::Run()
 
         auto message = DecodeMessage(msg);
 
-        std::cout << "Received message with ID: " << message->id << std::endl;
-        if (message->id == Messages::ABORT)
+        std::cout << "Received message with ID: " << message.id << std::endl;
+        if (message.id == Messages::ABORT)
         {
             std::cout << "Received ABORT" << std::endl;
             break;
         }
-        else if (message->id == Messages::PING)
+        else if (message.id == Messages::PING)
         {
-            auto ping = ExtractPayload<Messages::Ping>(message->payload);
+            auto ping = ExtractPayload<Messages::Ping>(message.payload);
             std::cout << "Ping received. Note: " << ping.note << std::endl;
         }
-        else if (message->id == Messages::REGISTER_USER_EQUIPMENT_REQUEST)
+        else if (message.id == Messages::REGISTER_USER_EQUIPMENT_REQUEST)
         {
 
         }

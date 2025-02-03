@@ -16,7 +16,6 @@ constexpr PayloadId REGISTER_USER_EQUIPMENT_REQUEST = 0x0005;
 
 struct MasterInformationBlock
 {
-    static constexpr PayloadId id = MASTER_INFORMATION_BLOCK;
 	uint32_t messageId{};
 };
 
@@ -29,25 +28,21 @@ struct CellAccessRelatedInfo
 
 struct SystemInformationBlockOne
 {
-    static constexpr PayloadId id = SYSTEM_INFORMATION_BLOCK_ONE;
     CellAccessRelatedInfo cellAccessRelatedInfo{};
 };
 
 struct Abort
 {
-    static constexpr PayloadId id = ABORT;
     std::string note{};
 };
 
 struct Ping
 {
-    static constexpr PayloadId id = PING;
     std::string note{};
 };
 
 struct RegisterUserEquipmentRequest
 {
-    static constexpr PayloadId id = REGISTER_USER_EQUIPMENT_REQUEST;
     std::string address{};
 };
 

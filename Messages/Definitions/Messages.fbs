@@ -1,0 +1,30 @@
+namespace MessagesX;
+
+table Ping
+{
+  source:int;
+}
+
+table Abort
+{
+  source:int;
+}
+
+table RegisterUserEquipmentRequest
+{
+  address:string;
+}
+
+union Payload
+{
+  Ping,
+  Abort,
+  RegisterUserEquipmentRequest
+}
+
+table Message
+{  
+  payload:Payload;  
+}  
+
+root_type Message; 

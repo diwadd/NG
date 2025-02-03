@@ -9,6 +9,7 @@
 #include "MessageOperations.h"
 #include "NetworkConnection.h"
 #include "Addresses.h"
+#include "Definitions/Messages_generated.h"
 
 
 // void gnb(zmq::context_t &context)
@@ -49,8 +50,8 @@ void ue(zmq::context_t &context)
 
 	std::cout << "Preparing message" << std::endl;
 
-	Messages::Message message{.id = Messages::Ping::id,
-		.payload = Messages::Ping{.note = "Ping - Pinging from UE_1"}};
+	Messages::Message message{.id = Messages::PING,
+		.payload = Messages::Ping{.note="asd"}};
 
 	std::cout << "Sending message" << std::endl;
 
@@ -121,8 +122,18 @@ int main()
 	zmq::socket_t sender(context, zmq::socket_type::pair);
 	sender.connect(Address::NETWORK_CONTROL.data());
 
-	Messages::Message message{.id = Messages::Abort::id,
+	Messages::Message message{.id = Messages::ABORT,
 		.payload = Messages::Abort{.note = "Abort - Closing Network Connection"}};
+
+	flatbuffers::FlatBufferBuilder builder;
+	auto ping = MessagesX::CreatePing(builder, 1237);
+	auto msgX = MessagesX::CreateMessage(builder, MessagesX::Payload_Ping, ping.Union());
+
+	builder.Finish(msgX);
+
+    uint8_t* buffer = builder.GetBufferPointer();
+    size_t size = builder.GetSize();
+
 
 	SendMessage(sender, message);
 

@@ -5,7 +5,7 @@
 
 void SendMessage(zmq::socket_t& socket, Messages::Message& message);
 
-std::unique_ptr<Messages::Message> DecodeMessage(zmq::message_t& zmqMessage);
+Messages::Message& DecodeMessage(zmq::message_t& zmqMessage);
  
 template<typename Type> Type ExtractPayload(Messages::Payload& payload)
 {

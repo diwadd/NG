@@ -25,8 +25,6 @@ find_library(ZeroMQ_LIBRARY
         PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
         )
 
-
-
 add_executable(NG main.cpp)
 
 target_link_libraries(NG PUBLIC Utilities)

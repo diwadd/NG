@@ -16,7 +16,20 @@ RUN apt-get update && \
     g++-14 \
     cmake \
     build-essential \
-    libzmq3-dev
+    libzmq3-dev \
+    git \
+    pkg-config
+
+
+RUN git clone https://github.com/google/flatbuffers.git /flatbuffers
+WORKDIR /flatbuffers
+RUN cmake -G "Unix Makefiles" && \
+    make && \
+    make install
+
+
+RUN flatc --version
+
 
 # Copy your C++ source code to the container
 WORKDIR /app
