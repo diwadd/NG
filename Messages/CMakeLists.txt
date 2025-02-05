@@ -39,5 +39,5 @@ add_custom_target(
 
 include_directories(${FLATBUFFERS_OUTPUT_DIR})
 
-add_library(Messages MessageOperations.cc)
+add_library(Messages MessageOperations.cpp MessageBuilders.cpp)
 add_dependencies(Messages FlatBufferMessages)

@@ -45,4 +45,4 @@ WORKDIR /app
 # CMD ["./my_program"]
 
 # sudo docker build -t ng_main .
-# sudo docker run -v /home/dawid/Coding/NG:/app -it ng_main
+# sudo docker run -v /home/user/Coding/NG:/app -it ng_main

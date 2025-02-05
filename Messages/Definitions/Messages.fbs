@@ -7,7 +7,7 @@ table Ping
 
 table Abort
 {
-  source:int;
+  note:string;
 }
 
 table RegisterUserEquipmentRequest

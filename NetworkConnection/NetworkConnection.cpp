@@ -1,5 +1,4 @@
 #include "NetworkConnection.h"
-#include "Messages.h"
 #include "MessageOperations.h"
 #include "Addresses.h"
 #include <iostream>
@@ -13,7 +12,7 @@ NetworkConnection::NetworkConnection(zmq::context_t& context) : context_m(contex
 void NetworkConnection::Run()
 {
     zmq::socket_t socket(context_m, zmq::socket_type::pair);
-    socket.bind(Address::NETWORK_CONTROL.data());
+    socket.bind(Addresses::NETWORK_CONTROL.data());
 
     while(true)
     {
@@ -25,13 +24,13 @@ void NetworkConnection::Run()
 
         std::cout << "Payload type: " << static_cast<int>(message->payload_type()) << " - " << static_cast<int>(MessagesX::Payload_Ping) << std::endl;
 
-        if (message->payload_as_Ping())
+        if (auto ping = message->payload_as_Ping(); ping)
         {
-            std::cout << "Received Ping" << std::endl;
+            std::cout << "Received Ping from " << ping->source() << std::endl;
         }
-        else if (message->payload_as_Abort())
+        else if (auto abort = message->payload_as_Abort(); abort)
         {
-            std::cout << "Received Abort" << std::endl;
+            std::cout << "Received Abort: " << abort->note()->c_str() << std::endl;
             break;
         }
 

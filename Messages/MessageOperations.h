@@ -1,13 +1,8 @@
 #pragma once
-#include "Messages.h"
 #include <zmq.hpp>
-#include <cassert>
+#include "flatbuffers/flatbuffers.h"
 
-void SendMessage(zmq::socket_t& socket, Messages::Message& message);
-
-Messages::Message& DecodeMessage(zmq::message_t& zmqMessage);
- 
-template<typename Type> Type ExtractPayload(Messages::Payload& payload)
-{
-	return std::get<Type>(payload);
-}
+void SendMessage(
+	zmq::context_t &context,
+	const std::string_view& address,
+	std::unique_ptr<flatbuffers::FlatBufferBuilder> messageBuilder);
