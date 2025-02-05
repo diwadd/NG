@@ -3,23 +3,23 @@
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder> BuildPing(uint32_t source)
 {
-	auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
-	auto ping = MessagesX::CreatePing(*builder, source);
-	auto msgX = MessagesX::CreateMessage(*builder, MessagesX::Payload_Ping, ping.Union());
+    auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
+    auto ping = MessagesX::CreatePing(*builder, source);
+    auto msgX = MessagesX::CreateMessage(*builder, MessagesX::Payload_Ping, ping.Union());
 
-	builder->Finish(msgX);
+    builder->Finish(msgX);
 
     return builder;
 }
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder> BuildAbort(const std::string& note)
 {
-	auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
+    auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
     auto flatBufferString = builder->CreateString(note);
-	auto ping = MessagesX::CreateAbort(*builder, flatBufferString);
-	auto msgX = MessagesX::CreateMessage(*builder, MessagesX::Payload_Abort, ping.Union());
+    auto ping = MessagesX::CreateAbort(*builder, flatBufferString);
+    auto msgX = MessagesX::CreateMessage(*builder, MessagesX::Payload_Abort, ping.Union());
 
-	builder->Finish(msgX);
+    builder->Finish(msgX);
 
     return builder;
 }

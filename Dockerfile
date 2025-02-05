@@ -18,6 +18,7 @@ RUN apt-get update && \
     build-essential \
     libzmq3-dev \
     git \
+    clang-format \
     pkg-config
 
 
@@ -30,6 +31,9 @@ RUN cmake -G "Unix Makefiles" && \
 
 RUN flatc --version
 
+# Replace dawid with custom user
+RUN useradd -m dawid
+USER dawid
 
 # Copy your C++ source code to the container
 WORKDIR /app
@@ -45,4 +49,4 @@ WORKDIR /app
 # CMD ["./my_program"]
 
 # sudo docker build -t ng_main .
-# sudo docker run -v /home/user/Coding/NG:/app -it ng_main
+# docker run -u 1000:1000 -v /home/user/Coding/NG:/home/dawid -it ng_main
