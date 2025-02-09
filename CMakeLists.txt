@@ -33,6 +33,7 @@ target_link_libraries(NG PUBLIC Utilities)
 target_link_libraries(NG PUBLIC Messages)
 target_link_libraries(NG PUBLIC NetworkConnection)
 target_link_libraries(NG PUBLIC UserEquipment)
+target_link_libraries(NG PUBLIC Pools)
 target_link_libraries(NG PUBLIC ${ZeroMQ_LIBRARY})
 
 target_include_directories(NG PUBLIC
