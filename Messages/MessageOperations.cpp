@@ -3,11 +3,11 @@
 
 void SendMessage(
 	zmq::context_t &context,
-	const std::string_view& address,
+	const Data::Types::Address& address,
 	std::unique_ptr<flatbuffers::FlatBufferBuilder> messageBuilder)
 {
 	zmq::socket_t sender(context, zmq::socket_type::pair);
-    sender.connect(address.data());
+    sender.connect(address.c_str());
 
     const auto messageSize = messageBuilder->GetSize();
     zmq::message_t zmqMessage(messageSize);

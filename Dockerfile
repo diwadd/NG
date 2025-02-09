@@ -32,8 +32,8 @@ RUN cmake -G "Unix Makefiles" && \
 RUN flatc --version
 
 # Replace dawid with custom user
-RUN useradd -m dawid
-USER dawid
+RUN useradd -m hao
+USER hao
 
 # Copy your C++ source code to the container
 WORKDIR /app

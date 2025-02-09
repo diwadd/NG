@@ -1,18 +1,18 @@
 #include "NetworkConnection.h"
 #include "MessageOperations.h"
-#include "Addresses.h"
+#include "DataAddresses.h"
 #include <iostream>
 #include "Definitions/Messages_generated.h"
 
-NetworkConnection::NetworkConnection(zmq::context_t& context) : context_m(context)
+NetworkConnection::NetworkConnection(zmq::context_t& context) : mContext(context)
 {
 
 }
 
 void NetworkConnection::Run()
 {
-    zmq::socket_t socket(context_m, zmq::socket_type::pair);
-    socket.bind(Addresses::NETWORK_CONTROL.data());
+    zmq::socket_t socket(mContext, zmq::socket_type::pair);
+    socket.bind(Addresses::NETWORK_CONTROL.c_str());
 
     while(true)
     {

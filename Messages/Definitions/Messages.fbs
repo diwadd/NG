@@ -23,8 +23,8 @@ union Payload
 }
 
 table Message
-{  
+{
   payload:Payload;  
-}  
+}
 
 root_type Message; 
