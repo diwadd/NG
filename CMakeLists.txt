@@ -12,6 +12,7 @@ add_subdirectory(Data)
 add_subdirectory(Pools)
 add_subdirectory(Utilities)
 add_subdirectory(UserEquipment)
+add_subdirectory(BaseStation)
 add_subdirectory(Messages)
 add_subdirectory(NetworkConnection)
 
@@ -33,6 +34,7 @@ target_link_libraries(NG PUBLIC Utilities)
 target_link_libraries(NG PUBLIC Messages)
 target_link_libraries(NG PUBLIC NetworkConnection)
 target_link_libraries(NG PUBLIC UserEquipment)
+target_link_libraries(NG PUBLIC BaseStation)
 target_link_libraries(NG PUBLIC Pools)
 target_link_libraries(NG PUBLIC ${ZeroMQ_LIBRARY})
 
@@ -42,6 +44,7 @@ target_include_directories(NG PUBLIC
                           "${PROJECT_SOURCE_DIR}/Pools"
                           "${PROJECT_SOURCE_DIR}/Utilities"
                           "${PROJECT_SOURCE_DIR}/UserEquipment"
+                          "${PROJECT_SOURCE_DIR}/BaseStation"
                           "${PROJECT_SOURCE_DIR}/Messages"
                           "${PROJECT_SOURCE_DIR}/NetworkConnection"
                           )

@@ -28,7 +28,7 @@ add_custom_command(
 
 message(STATUS "Running flatc to generate code from ${FLATBUFFERS_SCHEMA} and ${FLATBUFFERS_OUTPUT_DIR}")
 add_custom_command(
-    OUTPUT custom_generated.h
+    OUTPUT Messages_generated.h
     COMMAND flatc --cpp -o ${FLATBUFFERS_OUTPUT_DIR} ${FLATBUFFERS_SCHEMA}
     COMMENT "XKDC Generating FlatBuffers code from ${FLATBUFFERS_SCHEMA} and ${FLATBUFFERS_OUTPUT_DIR}"
     VERBATIM
@@ -38,7 +38,7 @@ message(STATUS "Finnished running flatc to generate code from ${FLATBUFFERS_SCHE
 
 add_custom_target(
   FlatBufferMessages
-  DEPENDS custom_generated.h
+  DEPENDS Messages_generated.h
 )
 
 include_directories(${FLATBUFFERS_OUTPUT_DIR})

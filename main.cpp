@@ -12,6 +12,8 @@
 #include "Pool.h"
 #include "UserEquipment.h"
 #include "Definitions/Messages_generated.h"
+#include "PoolFactory.h"
+#include "BaseStation.h"
 
 // void gnb(zmq::context_t &context)
 // {
@@ -94,11 +96,24 @@ int main()
 	std::print("id: {}\n", GetUniqueId());
 
 	constexpr uint32_t TOTAL_NUMBER_OF_UES = 10;
+	constexpr uint32_t TOTAL_NUMBER_OF_BASE_STATIONS = 3;
 	constexpr uint32_t NUMBER_OF_UE_THREADS = 3;
+	constexpr uint32_t NUMBER_OF_BASE_STATION_THREADS = 1;
 
 	std::vector<std::thread> threads{};
 
-	SpawnUeThreads(context, threads, TOTAL_NUMBER_OF_UES, NUMBER_OF_UE_THREADS);
+	SpwanThreads<UserEquipment>(
+		context,
+		threads,
+		TOTAL_NUMBER_OF_UES,
+		NUMBER_OF_UE_THREADS,
+		Addresses::USER_EQUIPMENT_POOL_PREFIX);
+	SpwanThreads<BaseStation>(
+		context,
+		threads,
+		TOTAL_NUMBER_OF_BASE_STATIONS,
+		NUMBER_OF_BASE_STATION_THREADS,
+		Addresses::BASE_STATION_POOL_PREFIX);
 
 	for(auto& th : threads)
 	{

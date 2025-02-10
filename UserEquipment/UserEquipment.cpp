@@ -2,7 +2,12 @@
 #include "DataAddresses.h"
 #include <string>
 
-UserEquipment::UserEquipment(Data::Types::NodeId id, const Data::Types::Address& poolAddress) : mId(id), mPoolAddress(poolAddress)
+UserEquipment::UserEquipment(Data::Types::NodeId id, const Data::Types::Address& poolAddress) :
+    mId(id), mPoolAddress(poolAddress)
 {
+}
 
+std::string_view UserEquipment::name()
+{
+    return "UserEquipment";
 }

@@ -33,24 +33,7 @@ void NetworkConnection::Run()
             std::cout << "Received Abort: " << abort->note()->c_str() << std::endl;
             break;
         }
-
-        // std::cout << "Received message with ID: " << message.payload_type() << std::endl;
-        // if (message.id == Messages::ABORT)
-        // {
-        //     std::cout << "Received ABORT" << std::endl;
-        //     break;
-        // }
-        // else if (message.id == Messages::PING)
-        // {
-        //     auto ping = ExtractPayload<Messages::Ping>(message.payload);
-        //     std::cout << "Ping received. Note: " << ping.note << std::endl;
-        // }
-        // else if (message.id == Messages::REGISTER_USER_EQUIPMENT_REQUEST)
-        // {
-
-        // }
     }
-    std::cout << "Exited while loop" << std::endl;
-
+    std::cout << "NetworkConnection - Exited while loop - End of Run" << std::endl;
 
 }

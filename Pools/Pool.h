@@ -4,6 +4,7 @@
 #include "PoolInterface.h"
 #include <map>
 #include <zmq.hpp>
+#include <memory>
 
 namespace Pools
 {
