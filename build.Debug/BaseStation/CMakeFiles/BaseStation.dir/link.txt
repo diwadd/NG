@@ -1,2 +1,0 @@
-/usr/bin/ar qc libBaseStation.a CMakeFiles/BaseStation.dir/BaseStation.cpp.o
-/usr/bin/ranlib libBaseStation.a
