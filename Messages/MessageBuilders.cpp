@@ -23,3 +23,15 @@ std::unique_ptr<flatbuffers::FlatBufferBuilder> BuildAbort(const std::string& no
 
     return builder;
 }
+
+std::unique_ptr<flatbuffers::FlatBufferBuilder> BuildRegisterUserEquipment(uint32_t id, std::string poolAddress)
+{
+    auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
+    auto flatBufferString = builder->CreateString(poolAddress);
+    auto registerUserEquipment = MessagesX::CreateRegisterUserEquipment(*builder, id, flatBufferString);
+    auto msgX = MessagesX::CreateMessage(*builder, MessagesX::Payload_RegisterUserEquipment, registerUserEquipment.Union());
+
+    builder->Finish(msgX);
+
+    return builder;
+}

@@ -7,3 +7,8 @@ void SendMessage(
 	zmq::context_t &context,
 	const Data::Types::Address& address,
 	std::unique_ptr<flatbuffers::FlatBufferBuilder> messageBuilder);
+
+void SendMessage(
+	zmq::socket_t &socket,
+	const Data::Types::Address& address,
+	std::unique_ptr<flatbuffers::FlatBufferBuilder> messageBuilder);

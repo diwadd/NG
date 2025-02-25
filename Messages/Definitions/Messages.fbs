@@ -10,16 +10,18 @@ table Abort
   note:string;
 }
 
-table RegisterUserEquipmentRequest
+
+table RegisterUserEquipment
 {
-  address:string;
+  id:int;
+  pool_address:string;
 }
 
 union Payload
 {
   Ping,
   Abort,
-  RegisterUserEquipmentRequest
+  RegisterUserEquipment
 }
 
 table Message

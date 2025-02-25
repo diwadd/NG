@@ -51,12 +51,12 @@ void ue(zmq::context_t &context)
 	SendMessage(context, Addresses::NETWORK_CONTROL, std::move(ping));
 
 	std::cout << "End of UE_1" << std::endl;
-
 }
 
 
 int main()
 {
+
     const uint32_t N_THREADS = std::thread::hardware_concurrency();
 	std::print("{} concurrent threads are supported.\n", N_THREADS);
 
@@ -83,13 +83,6 @@ int main()
 	std::this_thread::sleep_for(timespan);
 
 
-	auto abort = BuildAbort("Abort from main");
-	SendMessage(context, Addresses::NETWORK_CONTROL, std::move(abort));
-
-	// gnbThread.join();
-	ueThread.join();
-	networkConnectionThread.join();
-
 	std::print("id: {}\n", GetUniqueId());
 	std::print("id: {}\n", GetUniqueId());
 	std::print("id: {}\n", GetUniqueId());
@@ -115,10 +108,20 @@ int main()
 		NUMBER_OF_BASE_STATION_THREADS,
 		Addresses::BASE_STATION_POOL_PREFIX);
 
+
+
+	// auto abort = BuildAbort("Abort from main");
+	// SendMessage(context, Addresses::NETWORK_CONTROL, std::move(abort));
+
+
 	for(auto& th : threads)
 	{
 		th.join();
 	}
+
+	// gnbThread.join();
+	ueThread.join();
+	networkConnectionThread.join();
 
 	// const std::string uePoolAddress = Addresses::USER_EQUIPMENT_POOL_PREFIX + std::to_string(GetUniqueId());
 	// Pools::Pool<UserEquipment> pool(5, uePoolAddress);

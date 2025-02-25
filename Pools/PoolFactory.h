@@ -27,8 +27,8 @@ void poolCallable(
 	zmq::socket_t socket(context, zmq::socket_type::pair);
 	socket.bind(poolAddress);
 
-	Pools::Pool<UserEquipment> pool(numberOfNodesPerPool, poolAddress);
-
+	Pools::Pool<T> pool(context, socket, numberOfNodesPerPool, poolAddress);
+	
 	while(true)
 	{
 		zmq::message_t zmqMsg;
