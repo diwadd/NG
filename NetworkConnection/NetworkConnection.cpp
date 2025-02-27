@@ -12,10 +12,10 @@ NetworkConnection::NetworkConnection(zmq::context_t& context) : mContext(context
 void NetworkConnection::Run()
 {
     zmq::socket_t socket(mContext, zmq::socket_type::pair);
-    socket.bind(Addresses::NETWORK_CONTROL.c_str());
 
     int rcvhwm = 100;
     socket.set(zmq::sockopt::rcvhwm, rcvhwm);
+    socket.bind(Addresses::NETWORK_CONTROL.c_str());
 
 
     while(true)

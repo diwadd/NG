@@ -24,8 +24,8 @@ void UserEquipment::Register()
 {
     std::cout << "UserEquipment - Registering UE with ID " << mId << std::endl;
 
-	std::chrono::milliseconds timespan(200+mId); // or whatever
-	std::this_thread::sleep_for(timespan);
+	// std::chrono::milliseconds timespan(200+mId); // or whatever
+	// std::this_thread::sleep_for(timespan);
 
     auto reg = BuildRegisterUserEquipment(mId, mPoolAddress);
     SendMessage(mContext, Addresses::NETWORK_CONTROL, std::move(reg));
