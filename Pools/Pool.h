@@ -17,6 +17,10 @@ template<typename T> class Pool : public PoolInterface
 
         void RelayMessage(const MessagesX::Message& message) const override;
 
+        static std::string_view name()
+        {
+            return "Pool";
+        }
     private:
         void CreateNodes(uint32_t numberOfNodes);
         void RegisterNodes();
@@ -40,7 +44,7 @@ template<typename T> void Pool<T>::CreateNodes(uint32_t numberOfNodes)
 {
     for(uint32_t i = 0; i < numberOfNodes; i++)
     {
-        const auto nodeId = GetUniqueId();
+        const auto nodeId = GetUniqueId<T>();
         mNodes[nodeId] = std::make_unique<T>(mContext, mSocket, nodeId, mAddress);
     }
 }

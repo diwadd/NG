@@ -18,8 +18,8 @@ void poolCallable(
 	uint32_t numberOfNodesPerPool,
 	const Data::Types::AddressPrefix& addressPrefix)
 {
-	const uint32_t poolId = GetUniqueId();
-	const std::string poolAddress = addressPrefix + std::to_string(GetUniqueId());
+	const uint32_t poolId = GetUniqueId<Pools::Pool<T>>();
+	const std::string poolAddress = addressPrefix + std::to_string(poolId);
 
 	const auto nodeName = T::name();
 	std::print("Starting Pool {} with {} {}s\n", poolAddress, numberOfNodesPerPool, nodeName);
@@ -28,7 +28,7 @@ void poolCallable(
 	socket.bind(poolAddress);
 
 	Pools::Pool<T> pool(context, socket, numberOfNodesPerPool, poolAddress);
-	
+
 	while(true)
 	{
 		zmq::message_t zmqMsg;
@@ -46,7 +46,7 @@ void poolCallable(
 
 		if (auto abort = message->payload_as_Abort(); abort)
 		{
-			std::cout << "Ending UE pool " << poolId << std::endl;
+			std::cout << "Ending pool " << poolId << std::endl;
 			break;
 		}
 

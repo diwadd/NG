@@ -1,4 +1,7 @@
-// main
+//
+//
+//
+//
 #include <iostream>
 #include <thread>
 #include <zmq.hpp>
@@ -41,10 +44,6 @@ void ue(zmq::context_t &context)
 {
 
 	std::print("In UE function\n");
-
-	zmq::socket_t socket(context, zmq::socket_type::pair);
-	socket.bind("inproc://UE_1");
-
 	std::cout << "Sending message" << std::endl;
 
 	auto ping = BuildPing(123453);
@@ -82,12 +81,6 @@ int main()
 	std::chrono::milliseconds timespan(2000); // or whatever
 	std::this_thread::sleep_for(timespan);
 
-
-	std::print("id: {}\n", GetUniqueId());
-	std::print("id: {}\n", GetUniqueId());
-	std::print("id: {}\n", GetUniqueId());
-	std::print("id: {}\n", GetUniqueId());
-
 	constexpr uint32_t TOTAL_NUMBER_OF_UES = 10;
 	constexpr uint32_t TOTAL_NUMBER_OF_BASE_STATIONS = 3;
 	constexpr uint32_t NUMBER_OF_UE_THREADS = 3;
@@ -109,9 +102,11 @@ int main()
 		Addresses::BASE_STATION_POOL_PREFIX);
 
 
+	std::chrono::milliseconds timespan2(2000); // or whatever
+	std::this_thread::sleep_for(timespan2);
 
-	// auto abort = BuildAbort("Abort from main");
-	// SendMessage(context, Addresses::NETWORK_CONTROL, std::move(abort));
+	auto abort = BuildAbort("Abort from main");
+	SendMessage(context, Addresses::NETWORK_CONTROL, std::move(abort));
 
 
 	for(auto& th : threads)

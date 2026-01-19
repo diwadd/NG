@@ -6,7 +6,7 @@ void SendMessage(
 	const Data::Types::Address& address,
 	std::unique_ptr<flatbuffers::FlatBufferBuilder> messageBuilder)
 {
-	zmq::socket_t sender(context, zmq::socket_type::pair);
+	zmq::socket_t sender(context, zmq::socket_type::dealer);
     sender.connect(address.c_str());
 
     const auto messageSize = messageBuilder->GetSize();

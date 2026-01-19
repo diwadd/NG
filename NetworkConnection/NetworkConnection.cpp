@@ -11,7 +11,7 @@ NetworkConnection::NetworkConnection(zmq::context_t& context) : mContext(context
 
 void NetworkConnection::Run()
 {
-    zmq::socket_t socket(mContext, zmq::socket_type::pair);
+    zmq::socket_t socket(mContext, zmq::socket_type::router);
 
     int rcvhwm = 100;
     socket.set(zmq::sockopt::rcvhwm, rcvhwm);
@@ -20,7 +20,14 @@ void NetworkConnection::Run()
 
     while(true)
     {
-        zmq::message_t zmqMsg;
+        zmq::message_t identityMsg, zmqMsg;
+        const auto id = socket.recv(identityMsg, zmq::recv_flags::dontwait);
+        if (not id)
+        {
+            continue;
+        }
+        std::cout << "Network Connection identity message: " << id.value() << std::endl;
+
         const auto numberOfBytes = socket.recv(zmqMsg, zmq::recv_flags::none);
         std::cout << "Network Connection received message: " <<  numberOfBytes.value() << std::endl;
 
