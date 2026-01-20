@@ -17,28 +17,21 @@
 #include "Definitions/Messages_generated.h"
 #include "PoolFactory.h"
 #include "BaseStation.h"
+#include "Logger.h"
 
-// void gnb(zmq::context_t &context)
-// {
+namespace
+{
+	const auto runLogger = [](zmq::context_t& context){
+		Logger logger(context);
+		logger.Run();
+	};
 
-// 	zmq::socket_t socket(context, zmq::socket_type::pair);
-// 	socket.bind("inproc://GNB_1");
+	const auto runNetworkConnection = [](zmq::context_t& context){
+		NetworkConnection nc(context);
+		nc.Run();
+	};
 
-// 	std::cout << "Waiting for UEs to span\n";
-// 	std::chrono::milliseconds timespan(2000); // or whatever
-// 	std::this_thread::sleep_for(timespan);
-// 	std::cout << "UEs spanned\n";
-
-// 	zmq::socket_t sender(context, zmq::socket_type::pair);
-// 	sender.connect("inproc://UE_1");
-
-// 	Message message{
-// 		.payload = SystemInformationBlockOne{
-// 			.cellAccessRelatedInfo = CellAccessRelatedInfo{
-// 				.cellIdentity = 3427}}};
-
-// 	SendMessage(sender, message);
-// }
+}
 
 void ue(zmq::context_t &context)
 {
@@ -55,13 +48,11 @@ void ue(zmq::context_t &context)
 
 int main()
 {
-
     const uint32_t N_THREADS = std::thread::hardware_concurrency();
 	std::print("{} concurrent threads are supported.\n", N_THREADS);
 
 	auto [one, two, three] = zmq::version();
 	std::cout << "ZeroMQ version: " << one << "." << two << "." << three << "\n";
-	func();
 
 	zmq::context_t context;
 	// std::cout << "Creating gnb thread\n";
@@ -69,17 +60,15 @@ int main()
 	// std::cout << "Creating ue thread\n";
 
 
-	const auto runNetworkConnection = [](zmq::context_t& context){
-		NetworkConnection nc(context);
-		nc.Run();
-	};
+	std::thread loggerThread(runLogger, std::ref(context));
+	SendLogMessage(context, "Main - Logger thread created");
+
 
 	std::thread networkConnectionThread(runNetworkConnection, std::ref(context));
 	std::thread ueThread(ue, std::ref(context));
-	std::cout << "Threads created\n";
 
-	std::chrono::milliseconds timespan(2000); // or whatever
-	std::this_thread::sleep_for(timespan);
+	// std::chrono::milliseconds timespan(2000); // or whatever
+	// std::this_thread::sleep_for(timespan);
 
 	constexpr uint32_t TOTAL_NUMBER_OF_UES = 10;
 	constexpr uint32_t TOTAL_NUMBER_OF_BASE_STATIONS = 3;
@@ -94,6 +83,9 @@ int main()
 		TOTAL_NUMBER_OF_UES,
 		NUMBER_OF_UE_THREADS,
 		Addresses::USER_EQUIPMENT_POOL_PREFIX);
+
+	SendLogMessage(context, "Main - UE thread pools created");
+
 	SpwanThreads<BaseStation>(
 		context,
 		threads,
@@ -102,22 +94,26 @@ int main()
 		Addresses::BASE_STATION_POOL_PREFIX);
 
 
-	std::chrono::milliseconds timespan2(2000); // or whatever
-	std::this_thread::sleep_for(timespan2);
 
-	auto abort = BuildAbort("Abort from main");
-	SendMessage(context, Addresses::NETWORK_CONTROL, std::move(abort));
-
+	// for(auto& th : threads)
+	// {
+	// 	auto abort = BuildAbort("Abort from main");
+	// 	SendMessage(context, Addresses::NETWORK_CONTROL, std::move(abort));
+	// }
 
 	for(auto& th : threads)
 	{
 		th.join();
 	}
 
+	SendLogMessage(context, "Main - BS thread pools created");
+
+	SendMessage(context, Addresses::NETWORK_CONTROL, BuildAbort("Abort from main"));
+
+
 	// gnbThread.join();
 	ueThread.join();
 	networkConnectionThread.join();
+	loggerThread.join();
 
-	// const std::string uePoolAddress = Addresses::USER_EQUIPMENT_POOL_PREFIX + std::to_string(GetUniqueId());
-	// Pools::Pool<UserEquipment> pool(5, uePoolAddress);
 }

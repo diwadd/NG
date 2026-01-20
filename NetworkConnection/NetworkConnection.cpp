@@ -3,6 +3,7 @@
 #include "DataAddresses.h"
 #include <iostream>
 #include "Definitions/Messages_generated.h"
+#include "SimulatorConstants.h"
 
 NetworkConnection::NetworkConnection(zmq::context_t& context) : mContext(context)
 {
@@ -13,10 +14,8 @@ void NetworkConnection::Run()
 {
     zmq::socket_t socket(mContext, zmq::socket_type::router);
 
-    int rcvhwm = 100;
-    socket.set(zmq::sockopt::rcvhwm, rcvhwm);
+    socket.set(zmq::sockopt::rcvhwm, SimulatorConstants::RECEIVER_HIGH_WATER_MARK);
     socket.bind(Addresses::NETWORK_CONTROL.c_str());
-
 
     while(true)
     {
@@ -26,31 +25,28 @@ void NetworkConnection::Run()
         {
             continue;
         }
-        std::cout << "Network Connection identity message: " << id.value() << std::endl;
 
-        const auto numberOfBytes = socket.recv(zmqMsg, zmq::recv_flags::none);
-        std::cout << "Network Connection received message: " <<  numberOfBytes.value() << std::endl;
+        const auto numberOfBytes = socket.recv(zmqMsg, zmq::recv_flags::dontwait);
+        (void)numberOfBytes;
+        // SendLogMessage(mContext,
+        //     "NC - Received Msg " + std::to_string(id.value()) + " size " + std::to_string(numberOfBytes.value()));
 
         auto message = MessagesX::GetMessage(zmqMsg.data());
 
-        std::cout << "Payload type: " << static_cast<int>(message->payload_type()) << " - " << static_cast<int>(MessagesX::Payload_Ping) << std::endl;
-
         if (auto ping = message->payload_as_Ping(); ping)
         {
-            std::cout << "Received Ping from " << ping->source() << std::endl;
+            SendLogMessage(mContext, "NC - Received Ping from " + std::to_string(ping->source()));
         }
         else if (auto abort = message->payload_as_Abort(); abort)
         {
-            std::cout << "Received Abort: " << abort->note()->c_str() << std::endl;
+            SendLogMessage(mContext, "NC - Received Abort: " + abort->note()->str());
             break;
         }
         else if (auto registerUe = message->payload_as_RegisterUserEquipment(); registerUe)
         {
-            std::cout << "NetworkConnection - Registering User Equipment: " << registerUe->id()
-                      << " from " << registerUe->pool_address()->c_str() << std::endl;
+            SendLogMessage(mContext, "NC - Registering UE " + std::to_string(registerUe->id()) + " UE Pool " +
+                registerUe->pool_address()->str());
         }
-
     }
-    std::cout << "NetworkConnection - Exited while loop - End of Run" << std::endl;
-
+    SendLogMessage(mContext, "NC - Exited while loop - End of Run");
 }

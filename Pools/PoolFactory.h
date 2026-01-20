@@ -13,7 +13,7 @@
 
 
 template<typename T>
-void poolCallable(
+void PoolCallable(
 	zmq::context_t &context,
 	uint32_t numberOfNodesPerPool,
 	const Data::Types::AddressPrefix& addressPrefix)
@@ -24,15 +24,21 @@ void poolCallable(
 	const auto nodeName = T::name();
 	std::print("Starting Pool {} with {} {}s\n", poolAddress, numberOfNodesPerPool, nodeName);
 
-	zmq::socket_t socket(context, zmq::socket_type::pair);
+	zmq::socket_t socket(context, zmq::socket_type::router);
 	socket.bind(poolAddress);
 
 	Pools::Pool<T> pool(context, socket, numberOfNodesPerPool, poolAddress);
 
 	while(true)
 	{
-		zmq::message_t zmqMsg;
-        const auto numberOfBytes = socket.recv(zmqMsg, zmq::recv_flags::none);
+		zmq::message_t identityMsg, zmqMsg;
+		const auto id = socket.recv(identityMsg, zmq::recv_flags::dontwait);
+		if (not id)
+		{
+			continue;
+		}
+
+        const auto numberOfBytes = socket.recv(zmqMsg, zmq::recv_flags::dontwait);
 
 		if(not numberOfBytes.has_value())
 		{
@@ -68,11 +74,11 @@ template<typename T> void SpwanThreads(
 	for(uint32_t t = 0; t < numberOfThreads - 1; t++)
 	{
 		std::cout << "Creating " << nodeName << " Pool thread with " << numberOfNodesPerThread << " " << nodeName << "s\n";
-		threads.push_back(std::thread(poolCallable<T>,
+		threads.push_back(std::thread(PoolCallable<T>,
 			std::ref(context), numberOfNodesPerThread, addressPrefix));
 		nodesProcessedSoFar += numberOfNodesPerThread;
 	}
 	const auto remainingNodes = totalNumberOfNodes - nodesProcessedSoFar;
 	std::cout << "Creating " << nodeName << " Pool thread with " << remainingNodes << " " << nodeName << "s\n";
-	threads.push_back(std::thread(poolCallable<T>, std::ref(context), remainingNodes, addressPrefix));
+	threads.push_back(std::thread(PoolCallable<T>, std::ref(context), remainingNodes, addressPrefix));
 }

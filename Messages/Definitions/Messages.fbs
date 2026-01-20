@@ -17,11 +17,17 @@ table RegisterUserEquipment
   pool_address:string;
 }
 
+table Log
+{
+  note:string;
+}
+
 union Payload
 {
   Ping,
   Abort,
-  RegisterUserEquipment
+  RegisterUserEquipment,
+  Log
 }
 
 table Message

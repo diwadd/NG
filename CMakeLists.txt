@@ -10,12 +10,12 @@ project(NG)
 
 add_subdirectory(Data)
 add_subdirectory(Pools)
-add_subdirectory(Utilities)
+#add_subdirectory(Utilities)
 add_subdirectory(UserEquipment)
 add_subdirectory(BaseStation)
 add_subdirectory(Messages)
 add_subdirectory(NetworkConnection)
-
+add_subdirectory(Logger)
 
 find_package(PkgConfig)
 pkg_check_modules(PC_ZeroMQ QUIET zmq)
@@ -30,9 +30,10 @@ find_library(ZeroMQ_LIBRARY
 
 add_executable(NG main.cpp)
 
-target_link_libraries(NG PUBLIC Utilities)
+#target_link_libraries(NG PUBLIC Utilities)
 target_link_libraries(NG PUBLIC Messages)
 target_link_libraries(NG PUBLIC NetworkConnection)
+target_link_libraries(NG PUBLIC Logger)
 target_link_libraries(NG PUBLIC UserEquipment)
 target_link_libraries(NG PUBLIC BaseStation)
 target_link_libraries(NG PUBLIC Pools)
@@ -47,6 +48,7 @@ target_include_directories(NG PUBLIC
                           "${PROJECT_SOURCE_DIR}/BaseStation"
                           "${PROJECT_SOURCE_DIR}/Messages"
                           "${PROJECT_SOURCE_DIR}/NetworkConnection"
+                          "${PROJECT_SOURCE_DIR}/Logger"
                           )
 
 

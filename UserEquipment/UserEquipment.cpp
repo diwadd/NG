@@ -22,10 +22,8 @@ std::string_view UserEquipment::name()
 
 void UserEquipment::Register()
 {
-    std::cout << "UserEquipment - Registering UE with ID " << mId << std::endl;
-
-	// std::chrono::milliseconds timespan(200+mId); // or whatever
-	// std::this_thread::sleep_for(timespan);
+    const auto log = "UE " + std::to_string(mId) + " - registering to Network control";
+    SendLogMessage(mContext, log);
 
     auto reg = BuildRegisterUserEquipment(mId, mPoolAddress);
     SendMessage(mContext, Addresses::NETWORK_CONTROL, std::move(reg));
