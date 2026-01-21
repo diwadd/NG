@@ -9,20 +9,21 @@
 
 UserEquipment::UserEquipment(
     zmq::context_t &context,
-    zmq::socket_t &socket,
     Data::Types::NodeId id, const Data::Types::Address& poolAddress) :
-    mContext(context), mSocket(socket), mId(id), mPoolAddress(poolAddress)
+    mContext(context),
+    mId(id),
+    selfAddress(Addresses::USER_EQUIPMENT_PREFIX + std::to_string(mId)), mPoolAddress(poolAddress)
 {
 }
 
-std::string_view UserEquipment::name()
+std::string UserEquipment::name()
 {
     return "UserEquipment";
 }
 
 void UserEquipment::Register()
 {
-    const auto log = "UE " + std::to_string(mId) + " - registering to Network control";
+    const auto log = selfAddress + " - registering to Network control";
     SendLogMessage(mContext, log);
 
     auto reg = BuildRegisterUserEquipment(mId, mPoolAddress);

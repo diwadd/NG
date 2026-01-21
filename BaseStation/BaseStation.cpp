@@ -2,16 +2,15 @@
 
 BaseStation::BaseStation(
     zmq::context_t &context,
-    zmq::socket_t &socket,
     Data::Types::NodeId id,
-    const Data::Types::Address& poolAddress) : mContext(context), mSocket(socket),
+    const Data::Types::Address& poolAddress) : mContext(context),
         mId(id), mPoolAddress(poolAddress)
 {
 
 }
 
 
-std::string_view BaseStation::name()
+std::string BaseStation::name()
 {
     return "BaseStation";
 }

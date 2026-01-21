@@ -16,69 +16,44 @@ template<typename T>
 void PoolCallable(
 	zmq::context_t &context,
 	uint32_t numberOfNodesPerPool,
-	const Data::Types::AddressPrefix& addressPrefix)
+	const Data::Types::Address& poolAddress)
 {
-	const uint32_t poolId = GetUniqueId<Pools::Pool<T>>();
-	const std::string poolAddress = addressPrefix + std::to_string(poolId);
-
 	const auto nodeName = T::name();
-	std::print("Starting Pool {} with {} {}s\n", poolAddress, numberOfNodesPerPool, nodeName);
 
-	zmq::socket_t socket(context, zmq::socket_type::router);
-	socket.bind(poolAddress);
+	SendLogMessage(context, poolAddress + " - Starting pool for " + nodeName + "s");
 
-	Pools::Pool<T> pool(context, socket, numberOfNodesPerPool, poolAddress);
-
-	while(true)
-	{
-		zmq::message_t identityMsg, zmqMsg;
-		const auto id = socket.recv(identityMsg, zmq::recv_flags::dontwait);
-		if (not id)
-		{
-			continue;
-		}
-
-        const auto numberOfBytes = socket.recv(zmqMsg, zmq::recv_flags::dontwait);
-
-		if(not numberOfBytes.has_value())
-		{
-			std::cerr << "Received message with no size!\n";
-			std::abort();
-		}
-
-		auto message = MessagesX::GetMessage(zmqMsg.data());
-        std::cout << nodeName << " Pool " << poolId << " received message ("
-			<< numberOfBytes.value() << "): " <<  static_cast<uint32_t>(message->payload_type()) << std::endl;
-
-		if (auto abort = message->payload_as_Abort(); abort)
-		{
-			std::cout << "Ending pool " << poolId << std::endl;
-			break;
-		}
-
-		pool.RelayMessage(*message);
-
-	}
+	Pools::Pool<T> pool(context, numberOfNodesPerPool, poolAddress);
+	pool.Run();
 }
 
-template<typename T> void SpwanThreads(
+template<typename T> Addresses::Addresses SpwanThreads(
 	zmq::context_t &context,
 	std::vector<std::thread>& threads,
 	uint32_t totalNumberOfNodes,
 	uint32_t numberOfThreads,
 	const Data::Types::AddressPrefix& addressPrefix)
 {
+	Addresses::Addresses addressesOfPools = {};
+
 	const uint32_t numberOfNodesPerThread = totalNumberOfNodes / numberOfThreads;
 	uint32_t nodesProcessedSoFar = 0;
 	const auto nodeName = T::name();
 	for(uint32_t t = 0; t < numberOfThreads - 1; t++)
 	{
-		std::cout << "Creating " << nodeName << " Pool thread with " << numberOfNodesPerThread << " " << nodeName << "s\n";
+		const uint32_t poolId = GetUniqueId<Pools::Pool<T>>();
+		const Data::Types::Address poolAddress = addressPrefix + std::to_string(poolId);
+
+		addressesOfPools.push_back(poolAddress);
+
 		threads.push_back(std::thread(PoolCallable<T>,
-			std::ref(context), numberOfNodesPerThread, addressPrefix));
+			std::ref(context), numberOfNodesPerThread, poolAddress));
 		nodesProcessedSoFar += numberOfNodesPerThread;
 	}
+
+	const uint32_t poolId = GetUniqueId<Pools::Pool<T>>();
+	const Data::Types::Address poolAddress = addressPrefix + std::to_string(poolId);
 	const auto remainingNodes = totalNumberOfNodes - nodesProcessedSoFar;
-	std::cout << "Creating " << nodeName << " Pool thread with " << remainingNodes << " " << nodeName << "s\n";
-	threads.push_back(std::thread(PoolCallable<T>, std::ref(context), remainingNodes, addressPrefix));
+	threads.push_back(std::thread(PoolCallable<T>, std::ref(context), remainingNodes, poolAddress));
+
+	return addressesOfPools;
 }

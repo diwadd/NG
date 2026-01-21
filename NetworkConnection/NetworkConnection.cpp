@@ -35,18 +35,18 @@ void NetworkConnection::Run()
 
         if (auto ping = message->payload_as_Ping(); ping)
         {
-            SendLogMessage(mContext, "NC - Received Ping from " + std::to_string(ping->source()));
+            SendLogMessage(mContext, Addresses::NETWORK_CONTROL + " - Received Ping from " + std::to_string(ping->source()));
         }
         else if (auto abort = message->payload_as_Abort(); abort)
         {
-            SendLogMessage(mContext, "NC - Received Abort: " + abort->note()->str());
+            SendLogMessage(mContext, Addresses::NETWORK_CONTROL + " - Received Abort: " + abort->note()->str());
             break;
         }
         else if (auto registerUe = message->payload_as_RegisterUserEquipment(); registerUe)
         {
-            SendLogMessage(mContext, "NC - Registering UE " + std::to_string(registerUe->id()) + " UE Pool " +
+            SendLogMessage(mContext, Addresses::NETWORK_CONTROL + " - Registering UE " + std::to_string(registerUe->id()) + " UE Pool " +
                 registerUe->pool_address()->str());
         }
     }
-    SendLogMessage(mContext, "NC - Exited while loop - End of Run");
+    SendLogMessage(mContext, Addresses::NETWORK_CONTROL + " - Exited while loop - End of Run");
 }

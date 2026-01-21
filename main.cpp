@@ -55,20 +55,11 @@ int main()
 	std::cout << "ZeroMQ version: " << one << "." << two << "." << three << "\n";
 
 	zmq::context_t context;
-	// std::cout << "Creating gnb thread\n";
-	// std::thread gnbThread(gnb, std::ref(context));
-	// std::cout << "Creating ue thread\n";
-
 
 	std::thread loggerThread(runLogger, std::ref(context));
 	SendLogMessage(context, "Main - Logger thread created");
 
-
 	std::thread networkConnectionThread(runNetworkConnection, std::ref(context));
-	std::thread ueThread(ue, std::ref(context));
-
-	// std::chrono::milliseconds timespan(2000); // or whatever
-	// std::this_thread::sleep_for(timespan);
 
 	constexpr uint32_t TOTAL_NUMBER_OF_UES = 10;
 	constexpr uint32_t TOTAL_NUMBER_OF_BASE_STATIONS = 3;
@@ -77,43 +68,29 @@ int main()
 
 	std::vector<std::thread> threads{};
 
-	SpwanThreads<UserEquipment>(
+	const Addresses::Addresses addressesOfUserEquipmentPools = SpwanThreads<UserEquipment>(
 		context,
 		threads,
 		TOTAL_NUMBER_OF_UES,
 		NUMBER_OF_UE_THREADS,
 		Addresses::USER_EQUIPMENT_POOL_PREFIX);
 
-	SendLogMessage(context, "Main - UE thread pools created");
-
-	SpwanThreads<BaseStation>(
+	const Addresses::Addresses addressesOfBaseStationPools = SpwanThreads<BaseStation>(
 		context,
 		threads,
 		TOTAL_NUMBER_OF_BASE_STATIONS,
 		NUMBER_OF_BASE_STATION_THREADS,
 		Addresses::BASE_STATION_POOL_PREFIX);
 
-
-
-	// for(auto& th : threads)
-	// {
-	// 	auto abort = BuildAbort("Abort from main");
-	// 	SendMessage(context, Addresses::NETWORK_CONTROL, std::move(abort));
-	// }
-
 	for(auto& th : threads)
 	{
 		th.join();
 	}
 
-	SendLogMessage(context, "Main - BS thread pools created");
+	SendLogMessage(context, "Main - Sending Abort to Network Control");
 
 	SendMessage(context, Addresses::NETWORK_CONTROL, BuildAbort("Abort from main"));
 
-
-	// gnbThread.join();
-	ueThread.join();
 	networkConnectionThread.join();
 	loggerThread.join();
-
 }

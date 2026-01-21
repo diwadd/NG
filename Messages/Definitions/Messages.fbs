@@ -5,6 +5,11 @@ table Ping
   source:int;
 }
 
+table BroadcastPing
+{
+    source_address:string;
+}
+
 table Abort
 {
   note:string;
